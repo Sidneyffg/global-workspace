@@ -22,7 +22,9 @@ class GlobalWorkspace {
     if (!this.path) return;
 
     this.handleConfigFile();
-    this.get("http://localhost:3000/newRepo", { jaja: "jee" });
+
+    this.initialized = true;
+    this.connect("ccebaead-3480-4fc8-9f70-9c8274e0a09b", "pass", -1);
   }
 
   private handleConfigFile() {
@@ -50,33 +52,21 @@ class GlobalWorkspace {
     return true;
   }
 
-  private get(url: string, params: UrlParams = {}) {
+  private get(url: string, params: UrlParams = {}): Promise<any> {
     return new Promise(async (reject, resolve) => {
       const keys = Object.keys(params);
       if (keys.length > 0) {
         url += "?";
-        keys.forEach((key) => {
+        keys.forEach((key, idx) => {
+          if (idx != 0) url += "&";
           url += `${key}=${params[key]}`;
         });
       }
-      console.log(url);
-      const data = await (await fetch(url)).json();
-      console.log(data);
-      return data;
-
-      /*http
-        .get(url, (res) => {
-          let data = "";
-          res.on("data", (chunk) => {
-            data += chunk;
-          });
-          res.on("end", () => {
-            resolve(data);
-          });
-        })
-        .on("error", (err) => {
-          console.log(err);
-        });*/
+      console.log("Fetching url:", url);
+      const data = await fetch(url);
+      const json = await data.json();
+      console.log("Received:", json);
+      return json;
     });
   }
 
@@ -92,10 +82,24 @@ class GlobalWorkspace {
     this.path = vscode.workspace.workspaceFolders[0].uri.fsPath;
   }
 
+  private async newRepo(
+    name: string,
+    password: string,
+    options?: NewRepoOptions
+  ) {
+    const url = `${this.baseUrl}/newRepo`;
+    const json = await this.get(url, { name, password });
+    const id = json.id;
+    console.log(id);
+  }
+
+  private connect(id: string, password: string, version: number) {}
+
   private initialized = false;
   private connected = false;
   private path: string | null = null;
   private configFileName = ".globalconf";
+  private baseUrl = "http://localhost:3000";
 }
 
 interface ConfigObj {
@@ -106,4 +110,8 @@ interface ConfigObj {
 
 interface UrlParams {
   [param: string]: string;
+}
+
+interface NewRepoOptions {
+  autoconnect?: boolean;
 }

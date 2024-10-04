@@ -18,6 +18,11 @@
       {
         "command": "global-workspace.init",
         "title": "Init global workspace"
+      },
+      {
+        "command": "global-workspace.newRepo",
+        "title": "Create new repo",
+        "args": "jaja"
       }
     ],
     "viewsContainers": {
@@ -37,14 +42,7 @@
           "type": "tree"
         }
       ]
-    },
-    "viewsWelcome": [
-      {
-        "view": "scm",
-        "contents": "hello",
-        "when": "*"
-      }
-    ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
